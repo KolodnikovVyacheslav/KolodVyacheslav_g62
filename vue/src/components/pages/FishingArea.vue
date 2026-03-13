@@ -1,35 +1,33 @@
 <template>
   <div class="fishing-area">
-    <div
-      class="fishing-area__water"
-      :style="{ backgroundImage: 'url(' + background + ')' }"
-      @click="(event) => onWaterClick(event)"
-    >
+    <div class="fishing-area__water" :style="{ backgroundImage: 'url(' + background + ')' }"
+      @click="(event) => onWaterClick(event)">
       <div class="fishing-area__overlay"></div>
 
-      <div
-        v-if="isFishHooked"
-        class="fishing-area__minigame"
-        @click="(event) => event.stopPropagation()"
-      >
+      <div v-if="activeArea" class="fishing-area__spot" :style="{
+        left: activeArea.x + '%',
+        top: activeArea.y + '%',
+        width: activeArea.width + '%',
+        height: activeArea.height + '%'
+      }">
+        <div class="fishing-area__spot-label">
+          {{ activeArea.name }}
+        </div>
+      </div>
+
+      <div v-if="isFishHooked" class="fishing-area__minigame" @click="(event) => event.stopPropagation()">
         <div class="fishing-area__progress">
           <span class="fishing-area__label">Рыба:</span>
           <div class="fishing-area__bar">
-            <div
-              class="fishing-area__bar-fill"
-              :style="{ width: 100 - fishDistance + '%' }"
-            ></div>
+            <div class="fishing-area__bar-fill" :style="{ width: 100 - fishDistance + '%' }"></div>
           </div>
         </div>
 
         <div class="fishing-area__progress">
           <span class="fishing-area__label">Удочка:</span>
           <div class="fishing-area__bar">
-            <div
-              class="fishing-area__bar-fill"
-              :class="{ 'fishing-area__bar-fill--danger': rodLoad > 80 }"
-              :style="{ width: rodLoad + '%' }"
-            ></div>
+            <div class="fishing-area__bar-fill" :class="{ 'fishing-area__bar-fill--danger': rodLoad > 80 }"
+              :style="{ width: rodLoad + '%' }"></div>
           </div>
         </div>
       </div>
@@ -38,36 +36,22 @@
         {{ message }}
       </div>
 
-      <div
-        v-if="isFishing"
-        class="fishing-area__float"
-        :style="{
-          left: floatX + '%',
-          top: floatY + '%'
-        }"
-      >
-        <img
-          class="fishing-area__float-image"
-          :src="floatImage"
-          alt="Поплавок"
-        >
+      <div v-if="isFishing" class="fishing-area__float" :style="{
+        left: floatX + '%',
+        top: floatY + '%'
+      }">
+        <img class="fishing-area__float-image" :src="floatImage" alt="Поплавок">
       </div>
 
-      <button
-        v-if="isFishHooked"
-        class="fishing-area__action-button"
-        @mousedown="() => startPull()"
-        @mouseup="() => stopPull()"
-        @mouseleave="() => stopPull()"
-        @touchstart.prevent="() => startPull()"
-        @touchend="() => stopPull()"
-        @touchcancel="() => stopPull()"
-      >
+      <button v-if="isFishHooked" class="fishing-area__action-button" @mousedown="() => startPull()"
+        @mouseup="() => stopPull()" @mouseleave="() => stopPull()" @touchstart.prevent="() => startPull()"
+        @touchend="() => stopPull()" @touchcancel="() => stopPull()">
         Тащи!
       </button>
     </div>
   </div>
 </template>
+
 <script>
 export default {
   name: 'FishingArea',
@@ -107,6 +91,10 @@ export default {
     fishDistance: {
       type: Number,
       required: true
+    },
+    activeArea: {
+      type: Object,
+      default: null
     }
   },
   data() {
@@ -145,6 +133,7 @@ export default {
   }
 }
 </script>
+
 <style scoped lang="scss">
 .fishing-area {
   margin-bottom: 10px;
@@ -169,6 +158,25 @@ export default {
     bottom: 0;
     background: rgba(0, 0, 0, 0.15);
     pointer-events: none;
+  }
+
+  &__spot {
+    position: absolute;
+    border: 2px dashed #ffd54f;
+    background: rgba(255, 213, 79, 0.2);
+    z-index: 6;
+    pointer-events: none;
+  }
+
+  &__spot-label {
+    position: absolute;
+    top: -20px;
+    left: 0;
+    padding: 2px 6px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #000000;
+    font-size: 12px;
+    white-space: nowrap;
   }
 
   &__minigame {

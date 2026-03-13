@@ -1,20 +1,13 @@
 <template>
   <div class="location-selector">
-    <select
-      class="location-selector__select"
-      :value="selected.id"
-      @change="(event) => onChange(event)"
-    >
-      <option
-        v-for="item in locations"
-        :key="item.id"
-        :value="item.id"
-      >
+    <select class="location-selector__select" :value="selected.id" @change="(event) => onChange(event)">
+      <option v-for="item in locations" :key="item.id" :value="item.id">
         {{ item.name }}
       </option>
     </select>
   </div>
 </template>
+
 <script>
 export default {
   name: 'LocationSelector',
@@ -38,6 +31,7 @@ export default {
   }
 }
 </script>
+
 <style scoped lang="scss">
 .location-selector {
   margin-bottom: 10px;

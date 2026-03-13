@@ -8,17 +8,14 @@
       <div class="bite-indicator__title">История улова:</div>
 
       <div class="bite-indicator__list">
-        <div
-          v-for="(item, index) in catchHistory"
-          :key="index"
-          class="bite-indicator__item"
-        >
+        <div v-for="(item, index) in catchHistory" :key="index" class="bite-indicator__item">
           {{ item }}
         </div>
       </div>
     </div>
   </div>
 </template>
+
 <script>
 export default {
   name: 'BiteIndicator',
@@ -36,6 +33,7 @@ export default {
   }
 }
 </script>
+
 <style scoped lang="scss">
 .bite-indicator {
   &__catch {
