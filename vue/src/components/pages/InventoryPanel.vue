@@ -2,142 +2,118 @@
   <div class="inventory-panel">
     <div class="inventory-panel__title">Инвентарь</div>
 
+    <!-- Удочки -->
     <div class="inventory-panel__section">
       <div class="inventory-panel__section-title">Удочки</div>
-
-      <div v-if="inventory.rods.length === 0" class="inventory-panel__empty">
-        Нет удочек
-      </div>
-
+      <div v-if="inventory.rods.length === 0" class="inventory-panel__empty">Нет удочек</div>
       <div v-for="(item, index) in inventory.rods" :key="'rod-' + index" class="inventory-panel__item">
         <div class="inventory-panel__item-info">
           <div class="inventory-panel__item-name">{{ item.name }}</div>
-          <div v-if="selectedRod === item" class="inventory-panel__item-status">
-            Используется
-          </div>
+          <div v-if="selectedRod === item" class="inventory-panel__item-status">Используется</div>
         </div>
-
         <div class="inventory-panel__item-actions">
-          <button class="inventory-panel__button" @click="() => selectRod(item)">
-            Выбрать
-          </button>
-
-          <button class="inventory-panel__button inventory-panel__button--sell" @click="() => sellItem('rods', index)">
-            Продать
-          </button>
+          <button class="inventory-panel__button" @click="() => selectRod(item)">Выбрать</button>
+          <button class="inventory-panel__button inventory-panel__button--sell" @click="() => sellItem('rods', index)">Продать</button>
         </div>
       </div>
     </div>
 
+    <!-- Лески -->
     <div class="inventory-panel__section">
       <div class="inventory-panel__section-title">Лески</div>
-
-      <div v-if="inventory.lines.length === 0" class="inventory-panel__empty">
-        Нет лесок
-      </div>
-
+      <div v-if="inventory.lines.length === 0" class="inventory-panel__empty">Нет лесок</div>
       <div v-for="(item, index) in inventory.lines" :key="'line-' + index" class="inventory-panel__item">
         <div class="inventory-panel__item-info">
           <div class="inventory-panel__item-name">{{ item.name }}</div>
-          <div v-if="selectedLine === item" class="inventory-panel__item-status">
-            Используется
-          </div>
+          <div v-if="selectedLine === item" class="inventory-panel__item-status">Используется</div>
         </div>
-
         <div class="inventory-panel__item-actions">
-          <button class="inventory-panel__button" @click="() => selectLine(item)">
-            Выбрать
-          </button>
-
-          <button class="inventory-panel__button inventory-panel__button--sell" @click="() => sellItem('lines', index)">
-            Продать
-          </button>
+          <button class="inventory-panel__button" @click="() => selectLine(item)">Выбрать</button>
+          <button class="inventory-panel__button inventory-panel__button--sell" @click="() => sellItem('lines', index)">Продать</button>
         </div>
       </div>
     </div>
 
+    <!-- Катушки -->
     <div class="inventory-panel__section">
       <div class="inventory-panel__section-title">Катушки</div>
-
-      <div v-if="inventory.reels.length === 0" class="inventory-panel__empty">
-        Нет катушек
-      </div>
-
+      <div v-if="inventory.reels.length === 0" class="inventory-panel__empty">Нет катушек</div>
       <div v-for="(item, index) in inventory.reels" :key="'reel-' + index" class="inventory-panel__item">
         <div class="inventory-panel__item-info">
           <div class="inventory-panel__item-name">{{ item.name }}</div>
-          <div v-if="selectedReel === item" class="inventory-panel__item-status">
-            Используется
-          </div>
+          <div v-if="selectedReel === item" class="inventory-panel__item-status">Используется</div>
         </div>
-
         <div class="inventory-panel__item-actions">
-          <button class="inventory-panel__button" @click="() => selectReel(item)">
-            Выбрать
-          </button>
-
-          <button class="inventory-panel__button inventory-panel__button--sell" @click="() => sellItem('reels', index)">
-            Продать
-          </button>
+          <button class="inventory-panel__button" @click="() => selectReel(item)">Выбрать</button>
+          <button class="inventory-panel__button inventory-panel__button--sell" @click="() => sellItem('reels', index)">Продать</button>
         </div>
       </div>
     </div>
 
+    <!-- Наживки -->
     <div class="inventory-panel__section">
       <div class="inventory-panel__section-title">Наживки</div>
-
-      <div v-if="inventory.baits.length === 0" class="inventory-panel__empty">
-        Нет наживки
-      </div>
-
+      <div v-if="inventory.baits.length === 0" class="inventory-panel__empty">Нет наживки</div>
       <div v-for="(item, index) in inventory.baits" :key="'bait-' + index" class="inventory-panel__item">
         <div class="inventory-panel__item-info">
           <div class="inventory-panel__item-name">{{ item.name }} - {{ item.count }}</div>
-          <div v-if="selectedBait === item" class="inventory-panel__item-status">
-            Используется
-          </div>
+          <div v-if="selectedBait === item" class="inventory-panel__item-status">Используется</div>
         </div>
-
         <div class="inventory-panel__item-actions">
-          <button class="inventory-panel__button" @click="() => selectBait(item)">
-            Выбрать
-          </button>
-
-          <button class="inventory-panel__button inventory-panel__button--sell" @click="() => sellItem('baits', index)">
-            Продать
-          </button>
+          <button class="inventory-panel__button" @click="() => selectBait(item)">Выбрать</button>
+          <button class="inventory-panel__button inventory-panel__button--sell" @click="() => sellItem('baits', index)">Продать</button>
         </div>
       </div>
     </div>
 
+    <!-- Прикормки -->
+    <div class="inventory-panel__section">
+      <div class="inventory-panel__section-title">Прикормки</div>
+      <div v-if="inventory.groundBaits.length === 0" class="inventory-panel__empty">Нет прикормки</div>
+      <div v-for="(item, index) in inventory.groundBaits" :key="'groundBait-' + index" class="inventory-panel__item">
+        <div class="inventory-panel__item-info">
+          <div class="inventory-panel__item-name">{{ item.name }} - {{ item.count }} шт.</div>
+          <div class="inventory-panel__item-desc">Приманивает: {{ item.targetFishNames.join(', ') }}</div>
+          <div v-if="selectedGroundBait === item" class="inventory-panel__item-status">Используется</div>
+        </div>
+        <div class="inventory-panel__item-actions">
+          <button class="inventory-panel__button" @click="() => selectGroundBait(item)">Выбрать</button>
+          <button class="inventory-panel__button inventory-panel__button--sell" @click="() => sellItem('groundBaits', index)">Продать</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Сачки -->
+    <div class="inventory-panel__section">
+      <div class="inventory-panel__section-title">Сачки</div>
+      <div v-if="inventory.nets.length === 0" class="inventory-panel__empty">Нет сачков</div>
+      <div v-for="(item, index) in inventory.nets" :key="'net-' + index" class="inventory-panel__item">
+        <div class="inventory-panel__item-info">
+          <div class="inventory-panel__item-name">{{ item.name }}</div>
+          <div class="inventory-panel__item-desc">Допуск: до {{ item.weightLimit }} кг</div>
+          <div v-if="selectedNet === item" class="inventory-panel__item-status">Используется</div>
+        </div>
+        <div class="inventory-panel__item-actions">
+          <button class="inventory-panel__button" @click="() => selectNet(item)">Выбрать</button>
+          <button class="inventory-panel__button inventory-panel__button--sell" @click="() => sellItem('nets', index)">Продать</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Рыба -->
     <div class="inventory-panel__section">
       <div class="inventory-panel__section-title">Рыба</div>
-
-      <div v-if="inventory.fish.length === 0" class="inventory-panel__empty">
-        Нет рыбы
-      </div>
-
+      <div v-if="inventory.fish.length === 0" class="inventory-panel__empty">Нет рыбы</div>
       <div v-for="(item, index) in inventory.fish" :key="'fish-' + index" class="inventory-panel__item">
         <div class="inventory-panel__item-info">
-          <div class="inventory-panel__item-name">
-            {{ item.name }} {{ item.size }} г
-          </div>
-          <div class="inventory-panel__item-status">
-            Цена: {{ item.price }}
-          </div>
+          <div class="inventory-panel__item-name">{{ item.name }} {{ item.size }} г</div>
+          <div class="inventory-panel__item-status">Цена: {{ item.price }}</div>
         </div>
-
         <div class="inventory-panel__item-actions">
-          <button class="inventory-panel__button inventory-panel__button--sell" @click="() => sellFish(index)">
-            Продать
-          </button>
+          <button class="inventory-panel__button inventory-panel__button--sell" @click="() => sellFish(index)">Продать</button>
         </div>
       </div>
-
-      <button v-if="inventory.fish.length > 0" class="inventory-panel__button inventory-panel__button--all"
-        @click="() => sellAllFish()">
-        Продать всю рыбу
-      </button>
+      <button v-if="inventory.fish.length > 0" class="inventory-panel__button inventory-panel__button--all" @click="() => sellAllFish()">Продать всю рыбу</button>
     </div>
   </div>
 </template>
@@ -165,42 +141,48 @@ export default {
     selectedBait: {
       type: Object,
       default: null
+    },
+    selectedGroundBait: {
+      type: Object,
+      default: null
+    },
+    selectedNet: {
+      type: Object,
+      default: null
     }
   },
   methods: {
     selectRod(item) {
       this.$emit('select-rod', item)
     },
-
     selectLine(item) {
       this.$emit('select-line', item)
     },
-
     selectReel(item) {
       this.$emit('select-reel', item)
     },
-
     selectBait(item) {
       this.$emit('select-bait', item)
     },
-
-    sellItem(category, index) {
-      this.$emit('sell-item', {
-        category: category,
-        index: index
-      })
+    selectGroundBait(item) {
+      this.$emit('select-ground-bait', item)
     },
-
+    selectNet(item) {
+      this.$emit('select-net', item)
+    },
+    sellItem(category, index) {
+      this.$emit('sell-item', { category, index })
+    },
     sellFish(index) {
       this.$emit('sell-fish', index)
     },
-
     sellAllFish() {
       this.$emit('sell-all-fish')
     }
   }
 }
 </script>
+
 <style scoped lang="scss">
 .inventory-panel {
   padding: 10px;
@@ -247,6 +229,12 @@ export default {
 
   &__item-name {
     font-weight: bold;
+    margin-bottom: 2px;
+  }
+
+  &__item-desc {
+    font-size: 11px;
+    color: #666;
     margin-bottom: 2px;
   }
 

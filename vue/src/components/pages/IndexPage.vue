@@ -5,8 +5,28 @@
         <div class="index__title">Русская рыбалка</div>
       </div>
 
-      <LocationSelector :locations="locations" :selected="selectedLocation"
-        @change-location="(location) => changeLocation(location)" />
+      <GameContainer
+        :selected-rod="selectedRod"
+        :selected-line="selectedLine"
+        :selected-reel="selectedReel"
+        :selected-bait="selectedBait"
+        :selected-ground-bait="selectedGroundBait"
+        :selected-net="selectedNet"
+        :inventory-baits="inventory.baits"
+        :inventory-ground-baits="inventory.groundBaits"
+        :inventory-nets="inventory.nets"
+        @error="(message) => showError(message)"
+        @catch-fish="(fish) => addFish(fish)"
+        @break-rod="() => handleBreakRod()"
+        @remove-bait="(index) => removeBaitByIndex(index)"
+        @select-bait="(item) => selectBait(item)"
+        @remove-ground-bait="(index) => removeGroundBaitByIndex(index)"
+        @select-ground-bait="(item) => selectGroundBait(item)"
+        @use-ground-bait="(payload) => handleUseGroundBait(payload)"
+        @remove-net="(index) => removeNetByIndex(index)"
+        @select-net="(item) => selectNet(item)"
+        @net-broken="() => handleNetBroken()"
+      />
 
       <div class="index__equipment">
         <div class="index__equipment-title">Текущая снасть</div>
@@ -26,46 +46,89 @@
           <span class="index__equipment-label">Наживка:</span>
           <span class="index__equipment-value">{{ currentBaitName }}</span>
         </div>
+        <div class="index__equipment-row">
+          <span class="index__equipment-label">Прикормка:</span>
+          <span class="index__equipment-value">{{ currentGroundBaitName }}</span>
+        </div>
+        <div class="index__equipment-row">
+          <span class="index__equipment-label">Сачок:</span>
+          <span class="index__equipment-value">{{ currentNetName }}</span>
+        </div>
       </div>
 
       <div class="index__menu">
-        <button class="index__menu-button" @click="() => setActiveMenu('shop')">
+        <button
+          class="index__menu-button"
+          @click="() => setActiveMenu('shop')"
+        >
           Магазин
         </button>
-
-        <button class="index__menu-button" @click="() => setActiveMenu('inventory')">
+        <button
+          class="index__menu-button"
+          @click="() => setActiveMenu('inventory')"
+        >
           Инвентарь
         </button>
-
-        <button class="index__menu-button" @click="() => setActiveMenu('none')">
+        <button
+          class="index__menu-button"
+          @click="() => setActiveMenu('none')"
+        >
           Закрыть
         </button>
       </div>
 
       <div v-if="activeMenu === 'shop'" class="index__panel">
-        <ShopPanel :money="money" :rods="rods" :lines="lines" :reels="reels" :baits="baits" :shop-message="shopMessage"
-          @buy-item="(item, category) => buyItem(item, category)" />
+        <ShopContainer
+          :money="money"
+          :rods="rods"
+          :lines="lines"
+          :reels="reels"
+          :baits="baits"
+          :ground-baits="groundBaits"
+          :nets="nets"
+          :inventory="inventory"
+          :selected-rod="selectedRod"
+          :selected-line="selectedLine"
+          :selected-reel="selectedReel"
+          :selected-bait="selectedBait"
+          :selected-ground-bait="selectedGroundBait"
+          :selected-net="selectedNet"
+          @spend-money="(value) => spendMoney(value)"
+          @add-money="(value) => addMoney(value)"
+          @add-inventory-item="(payload) => addInventoryItem(payload)"
+          @update-bait-count="(payload) => updateBaitCount(payload)"
+          @select-rod="(item) => selectRod(item)"
+          @select-line="(item) => selectLine(item)"
+          @select-reel="(item) => selectReel(item)"
+          @select-bait="(item) => selectBait(item)"
+          @select-ground-bait="(item) => selectGroundBait(item)"
+          @select-net="(item) => selectNet(item)"
+        />
       </div>
 
       <div v-if="activeMenu === 'inventory'" class="index__panel">
-        <InventoryPanel :inventory="inventory" :selected-rod="selectedRod" :selected-line="selectedLine"
-          :selected-reel="selectedReel" :selected-bait="selectedBait" @select-rod="(item) => selectRod(item)"
-          @select-line="(item) => selectLine(item)" @select-reel="(item) => selectReel(item)"
-          @select-bait="(item) => selectBait(item)" @sell-item="(payload) => sellItem(payload)"
-          @sell-fish="(index) => sellFish(index)" @sell-all-fish="() => sellAllFish()" />
+        <InventoryContainer
+          :money="money"
+          :inventory="inventory"
+          :selected-rod="selectedRod"
+          :selected-line="selectedLine"
+          :selected-reel="selectedReel"
+          :selected-bait="selectedBait"
+          :selected-ground-bait="selectedGroundBait"
+          :selected-net="selectedNet"
+          @select-rod="(item) => selectRod(item)"
+          @select-line="(item) => selectLine(item)"
+          @select-reel="(item) => selectReel(item)"
+          @select-bait="(item) => selectBait(item)"
+          @select-ground-bait="(item) => selectGroundBait(item)"
+          @select-net="(item) => selectNet(item)"
+          @add-money="(value) => addMoney(value)"
+          @remove-inventory-item="(payload) => removeInventoryItem(payload)"
+          @remove-fish="(index) => removeFish(index)"
+          @clear-all-fish="() => clearAllFish()"
+          @show-message="(message) => showShopMessage(message)"
+        />
       </div>
-
-      <div v-if="activeArea" class="index__area-info">
-        Выгодная область: {{ activeArea.name }}
-      </div>
-
-      <FishingArea :background="currentLocation.background" :message="message" :is-fishing="isFishing"
-        :is-waiting-bite="isWaitingBite" :is-fish-hooked="isFishHooked" :float-x="floatX" :float-y="floatY"
-        :rod-load="rodLoad" :fish-distance="fishDistance" :active-area="activeArea"
-        @cast="(position) => handleCast(position)" @start-pull="() => handleStartPull()"
-        @stop-pull="() => handleStopPull()" @error="(message) => showError(message)" />
-
-      <BiteIndicator :last-catch="lastCatch" :catch-history="catchHistory" />
 
       <div v-if="shopMessage" class="index__shop-message">
         {{ shopMessage }}
@@ -77,291 +140,38 @@
     </div>
   </div>
 </template>
-
 <script>
-
-import LocationSelector from './LocationSelector.vue'
-import FishingArea from './FishingArea.vue'
-import BiteIndicator from './BiteIndicator.vue'
-import ShopPanel from './ShopPanel.vue'
-import InventoryPanel from './InventoryPanel.vue'
+import GameContainer from './GameContainer.vue'
+import ShopContainer from './ShopContainer.vue'
+import InventoryContainer from './InventoryContainer.vue'
+import {
+  rods,
+  lines,
+  reels,
+  baits,
+  groundBaits,
+  nets
+} from './shopData'
 
 export default {
   name: 'IndexPage',
   components: {
-    LocationSelector,
-    FishingArea,
-    BiteIndicator,
-    ShopPanel,
-    InventoryPanel
+    GameContainer,
+    ShopContainer,
+    InventoryContainer
   },
   data() {
     return {
-      locations: [
-        {
-          id: 1,
-          name: 'Пруд',
-          background: '/img/pond.jpg',
-          fish: ['crucian', 'perch', 'carp'],
-          areas: [
-            {
-              id: 1,
-              name: 'Камыши',
-              x: 12,
-              y: 60,
-              width: 18,
-              height: 14,
-              bonus: 0.2
-            },
-            {
-              id: 2,
-              name: 'Тихая вода',
-              x: 38,
-              y: 68,
-              width: 20,
-              height: 14,
-              bonus: 0.25
-            },
-            {
-              id: 3,
-              name: 'Старый мостик',
-              x: 68,
-              y: 58,
-              width: 18,
-              height: 14,
-              bonus: 0.3
-            }
-          ]
-        },
-        {
-          id: 2,
-          name: 'Река',
-          background: '/img/river.jpg',
-          fish: ['pike', 'roach', 'perch'],
-          areas: [
-            {
-              id: 1,
-              name: 'Заводь',
-              x: 15,
-              y: 66,
-              width: 20,
-              height: 14,
-              bonus: 0.22
-            },
-            {
-              id: 2,
-              name: 'Под корягой',
-              x: 44,
-              y: 58,
-              width: 18,
-              height: 16,
-              bonus: 0.28
-            },
-            {
-              id: 3,
-              name: 'У берега',
-              x: 70,
-              y: 70,
-              width: 18,
-              height: 12,
-              bonus: 0.18
-            }
-          ]
-        },
-        {
-          id: 3,
-          name: 'Озеро',
-          background: '/img/lake.jpg',
-          fish: ['bream', 'zander', 'crucian'],
-          areas: [
-            {
-              id: 1,
-              name: 'Глубина',
-              x: 18,
-              y: 62,
-              width: 18,
-              height: 16,
-              bonus: 0.26
-            },
-            {
-              id: 2,
-              name: 'Причал',
-              x: 42,
-              y: 72,
-              width: 18,
-              height: 12,
-              bonus: 0.2
-            },
-            {
-              id: 3,
-              name: 'Яма',
-              x: 66,
-              y: 60,
-              width: 20,
-              height: 16,
-              bonus: 0.32
-            }
-          ]
-        }
-      ],
-      fishCatalog: {
-        crucian: {
-          key: 'crucian',
-          name: 'Карась',
-          minSize: 200,
-          maxSize: 1200,
-          price: 4,
-          difficulty: 1,
-          baits: ['bread', 'worm']
-        },
-        perch: {
-          key: 'perch',
-          name: 'Окунь',
-          minSize: 250,
-          maxSize: 1400,
-          price: 5,
-          difficulty: 1.2,
-          baits: ['worm', 'spoon']
-        },
-        carp: {
-          key: 'carp',
-          name: 'Карп',
-          minSize: 1200,
-          maxSize: 7000,
-          price: 7,
-          difficulty: 2,
-          baits: ['bread', 'worm']
-        },
-        pike: {
-          key: 'pike',
-          name: 'Щука',
-          minSize: 1800,
-          maxSize: 9000,
-          price: 9,
-          difficulty: 2.4,
-          baits: ['spoon']
-        },
-        roach: {
-          key: 'roach',
-          name: 'Плотва',
-          minSize: 150,
-          maxSize: 900,
-          price: 3,
-          difficulty: 0.9,
-          baits: ['bread', 'worm']
-        },
-        bream: {
-          key: 'bream',
-          name: 'Лещ',
-          minSize: 700,
-          maxSize: 5000,
-          price: 6,
-          difficulty: 1.7,
-          baits: ['bread', 'worm']
-        },
-        zander: {
-          key: 'zander',
-          name: 'Судак',
-          minSize: 1400,
-          maxSize: 7500,
-          price: 8,
-          difficulty: 2.1,
-          baits: ['spoon']
-        }
-      },
-      selectedLocation: null,
-      activeArea: null,
       activeMenu: 'none',
       money: 220,
-      rods: [
-        {
-          id: 1,
-          key: 'basic_rod',
-          name: 'Базовая удочка',
-          price: 0,
-          power: 1
-        },
-        {
-          id: 2,
-          key: 'light_rod',
-          name: 'Легкая удочка',
-          price: 60,
-          power: 2
-        },
-        {
-          id: 3,
-          key: 'strong_rod',
-          name: 'Крепкая удочка',
-          price: 120,
-          power: 3
-        }
-      ],
-      lines: [
-        {
-          id: 1,
-          key: 'thin_line',
-          name: 'Тонкая леска',
-          price: 20,
-          power: 1
-        },
-        {
-          id: 2,
-          key: 'normal_line',
-          name: 'Обычная леска',
-          price: 45,
-          power: 2
-        },
-        {
-          id: 3,
-          key: 'strong_line',
-          name: 'Прочная леска',
-          price: 80,
-          power: 3
-        }
-      ],
-      reels: [
-        {
-          id: 1,
-          key: 'simple_reel',
-          name: 'Простая катушка',
-          price: 25,
-          power: 1
-        },
-        {
-          id: 2,
-          key: 'stable_reel',
-          name: 'Надежная катушка',
-          price: 55,
-          power: 2
-        },
-        {
-          id: 3,
-          key: 'power_reel',
-          name: 'Усиленная катушка',
-          price: 95,
-          power: 3
-        }
-      ],
-      baits: [
-        {
-          id: 1,
-          key: 'bread',
-          name: 'Хлеб',
-          price: 5
-        },
-        {
-          id: 2,
-          key: 'worm',
-          name: 'Червь',
-          price: 10
-        },
-        {
-          id: 3,
-          key: 'spoon',
-          name: 'Блесна',
-          price: 20
-        }
-      ],
+      shopMessage: '',
+      errorMessage: '',
+      rods: rods,
+      lines: lines,
+      reels: reels,
+      baits: baits,
+      groundBaits: groundBaits,
+      nets: nets,
       inventory: {
         rods: [],
         lines: [
@@ -398,45 +208,30 @@ export default {
             count: 2
           }
         ],
+        groundBaits: [
+          {
+            id: 1,
+            key: 'carp_ground',
+            name: 'Карповая смесь',
+            price: 35,
+            targetFish: ['carp', 'crucian'],
+            targetFishNames: ['Карп', 'Карась'],
+            count: 1,
+            usesLeft: 3
+          }
+        ],
+        nets: [],
         fish: []
       },
       selectedRod: null,
       selectedLine: null,
       selectedReel: null,
       selectedBait: null,
-      shopMessage: '',
-      isFishing: false,
-      isWaitingBite: false,
-      isFishHooked: false,
-      isPulling: false,
-      floatX: 0,
-      floatY: 0,
-      rodLoad: 0,
-      fishDistance: 0,
-      currentFish: null,
-      currentFishStrength: 0,
-      currentCastAreaBonus: 0,
-      currentBaitKey: '',
-      lastCatch: '',
-      catchHistory: [],
-      message: 'Кликни по воде чтобы забросить',
-      errorMessage: '',
-      biteTimeout: null,
-      fishInterval: null,
-      pullInterval: null,
-      loadInterval: null,
-      fishPowerInterval: null
+      selectedGroundBait: null,
+      selectedNet: null
     }
   },
   computed: {
-    currentLocation() {
-      if (this.selectedLocation) {
-        return this.selectedLocation
-      }
-
-      return this.locations[0]
-    },
-
     currentRodName() {
       if (this.selectedRod) {
         return this.selectedRod.name
@@ -467,9 +262,29 @@ export default {
       }
 
       return 'Не выбрана'
+    },
+
+    currentGroundBaitName() {
+      if (this.selectedGroundBait) {
+        return this.selectedGroundBait.name + ' (' + this.selectedGroundBait.count + ', использований: ' + this.selectedGroundBait.usesLeft + '/3)'
+      }
+
+      return 'Не выбрана'
+    },
+
+    currentNetName() {
+      if (this.selectedNet) {
+        return this.selectedNet.name
+      }
+
+      return 'Не выбран'
     }
   },
   methods: {
+    setActiveMenu(menu) {
+      this.activeMenu = menu
+    },
+
     showError(message) {
       this.errorMessage = message
 
@@ -486,586 +301,61 @@ export default {
       }, 2200)
     },
 
-    setActiveMenu(menu) {
-      this.activeMenu = menu
-    },
-
-    changeLocation(location) {
-      this.selectedLocation = location
-      this.chooseActiveArea()
-      this.resetFishing()
-    },
-
-    chooseActiveArea() {
-      const areas = this.currentLocation.areas
-      const randomIndex = Math.floor(Math.random() * areas.length)
-
-      this.activeArea = areas[randomIndex]
-    },
-
-    buyItem(item, category) {
-      if (this.money < item.price) {
-        this.showShopMessage('Недостаточно денег')
-        return
-      }
-
-      if (category === 'rods' && item.price === 0) {
-        const hasBasicRod = this.inventory.rods.find((rod) => rod.id === item.id)
-
-        if (hasBasicRod) {
-          this.showShopMessage('Базовая удочка уже есть')
-          return
-        }
-      }
-
-      this.money = this.money - item.price
-
-      if (category === 'baits') {
-        const currentBait = this.inventory.baits.find((bait) => bait.id === item.id)
-
-        if (currentBait) {
-          currentBait.count = currentBait.count + 1
-        } else {
-          this.inventory.baits.push({
-            id: item.id,
-            key: item.key,
-            name: item.name,
-            price: item.price,
-            count: 1
-          })
-        }
-
-        if (!this.selectedBait) {
-          this.selectedBait = this.inventory.baits.find((bait) => bait.id === item.id)
-        }
-      } else {
-        const newItem = {
-          id: item.id,
-          key: item.key,
-          name: item.name,
-          price: item.price,
-          power: item.power
-        }
-
-        this.inventory[category].push(newItem)
-
-        if (category === 'rods' && !this.selectedRod) {
-          this.selectedRod = newItem
-        }
-
-        if (category === 'lines' && !this.selectedLine) {
-          this.selectedLine = newItem
-        }
-
-        if (category === 'reels' && !this.selectedReel) {
-          this.selectedReel = newItem
-        }
-      }
-
+    spendMoney(value) {
+      this.money = this.money - value
       this.showShopMessage('Покупка выполнена')
     },
 
-    sellItem(payload) {
-      const category = payload.category
-      const index = payload.index
-      const item = this.inventory[category][index]
-
-      if (!item) {
-        return
-      }
-
-      if (category === 'rods' && this.selectedRod === item) {
-        this.selectedRod = null
-      }
-
-      if (category === 'lines' && this.selectedLine === item) {
-        this.selectedLine = null
-      }
-
-      if (category === 'reels' && this.selectedReel === item) {
-        this.selectedReel = null
-      }
-
-      if (category === 'baits') {
-        this.money = this.money + Math.max(1, Math.floor(item.price / 2))
-        item.count = item.count - 1
-
-        if (item.count <= 0) {
-          if (this.selectedBait === item) {
-            this.selectedBait = null
-          }
-
-          this.inventory.baits.splice(index, 1)
-        }
-
-        if (!this.selectedBait && this.inventory.baits.length > 0) {
-          this.selectedBait = this.inventory.baits[0]
-        }
-
-        this.showShopMessage('Наживка продана')
-        return
-      }
-
-      this.money = this.money + Math.max(1, Math.floor(item.price / 2))
-      this.inventory[category].splice(index, 1)
-
-      if (category === 'rods' && !this.selectedRod && this.inventory.rods.length > 0) {
-        this.selectedRod = this.inventory.rods[0]
-      }
-
-      if (category === 'lines' && !this.selectedLine && this.inventory.lines.length > 0) {
-        this.selectedLine = this.inventory.lines[0]
-      }
-
-      if (category === 'reels' && !this.selectedReel && this.inventory.reels.length > 0) {
-        this.selectedReel = this.inventory.reels[0]
-      }
-
-      this.showShopMessage('Предмет продан')
+    addMoney(value) {
+      this.money = this.money + value
     },
 
-    sellFish(index) {
-      const fish = this.inventory.fish[index]
-
-      if (!fish) {
-        return
-      }
-
-      this.money = this.money + fish.price
-      this.inventory.fish.splice(index, 1)
-      this.showShopMessage('Рыба продана')
+    addInventoryItem(payload) {
+      this.inventory[payload.category].push(payload.item)
     },
 
-    sellAllFish() {
-      if (this.inventory.fish.length === 0) {
-        this.showShopMessage('Рыбы нет')
-        return
+    updateBaitCount(payload) {
+      const currentBait = this.inventory.baits.find((item) => item.id === payload.id)
+
+      if (currentBait) {
+        currentBait.count = currentBait.count + payload.increment
       }
-
-      let totalPrice = 0
-
-      this.inventory.fish.forEach((fish) => {
-        totalPrice = totalPrice + fish.price
-      })
-
-      this.money = this.money + totalPrice
-      this.inventory.fish = []
-      this.showShopMessage('Вся рыба продана')
     },
 
     selectRod(item) {
       this.selectedRod = item
-      this.showShopMessage('Удочка выбрана')
     },
 
     selectLine(item) {
       this.selectedLine = item
-      this.showShopMessage('Леска выбрана')
     },
 
     selectReel(item) {
       this.selectedReel = item
-      this.showShopMessage('Катушка выбрана')
     },
 
     selectBait(item) {
       this.selectedBait = item
-      this.showShopMessage('Наживка выбрана')
     },
 
-    handleCast(position) {
-      if (this.isFishing || this.isWaitingBite || this.isFishHooked) {
-        return
-      }
+    selectGroundBait(item) {
+      this.selectedGroundBait = item
+    },
 
+    selectNet(item) {
+      this.selectedNet = item
+    },
+
+    addFish(fish) {
+      this.inventory.fish.unshift(fish)
+    },
+
+    handleBreakRod() {
       if (!this.selectedRod) {
-        this.showError('Сначала выбери удочку')
         return
       }
 
-      if (!this.selectedLine) {
-        this.showError('Сначала выбери леску')
-        return
-      }
-
-      if (!this.selectedReel) {
-        this.showError('Сначала выбери катушку')
-        return
-      }
-
-      if (!this.selectedBait) {
-        this.showError('Сначала выбери наживку')
-        return
-      }
-
-      const availableFish = this.getFishForCurrentBait()
-
-      if (availableFish.length === 0) {
-        this.showError('На эту наживку здесь не клюет')
-        return
-      }
-
-      this.currentBaitKey = this.selectedBait.key
-
-      if (!this.useSelectedBait()) {
-        this.showError('Наживка закончилась')
-        return
-      }
-
-      this.clearFishingTimers()
-
-      this.isFishing = true
-      this.isWaitingBite = true
-      this.isFishHooked = false
-      this.isPulling = false
-      this.rodLoad = 0
-      this.fishDistance = 96
-      this.currentFish = null
-      this.currentFishStrength = 0
-      this.floatX = position.x
-      this.floatY = position.y
-      this.currentCastAreaBonus = this.isPositionInArea(position) ? this.activeArea.bonus : 0
-      this.message = this.currentCastAreaBonus > 0 ? 'Заброс в выгодную область' : 'Ожидание поклевки...'
-
-      const timeToBite = this.currentCastAreaBonus > 0
-        ? Math.floor(Math.random() * 1800) + 1200
-        : Math.floor(Math.random() * 3000) + 2000
-
-      this.biteTimeout = setTimeout(() => {
-        this.startBite()
-      }, timeToBite)
-    },
-
-    useSelectedBait() {
-      if (!this.selectedBait) {
-        return false
-      }
-
-      this.selectedBait.count = this.selectedBait.count - 1
-
-      if (this.selectedBait.count <= 0) {
-        const baitId = this.selectedBait.id
-        const baitIndex = this.inventory.baits.findIndex((bait) => bait.id === baitId)
-
-        if (baitIndex !== -1) {
-          this.inventory.baits.splice(baitIndex, 1)
-        }
-
-        if (this.inventory.baits.length > 0) {
-          this.selectedBait = this.inventory.baits[0]
-        } else {
-          this.selectedBait = null
-        }
-      }
-
-      return true
-    },
-
-    getFishForCurrentBait() {
-      const currentFishKeys = this.currentLocation.fish
-
-      return currentFishKeys
-        .map((key) => this.fishCatalog[key])
-        .filter((fish) => fish.baits.includes(this.currentBaitKey || (this.selectedBait ? this.selectedBait.key : '')))
-    },
-
-    startBite() {
-      if (!this.isFishing) {
-        return
-      }
-
-      const availableFish = this.getFishForCurrentBait()
-
-      if (availableFish.length === 0) {
-        this.message = 'Поклевки не было'
-        this.finishFishing()
-        return
-      }
-
-      const randomIndex = Math.floor(Math.random() * availableFish.length)
-      const fish = availableFish[randomIndex]
-      const fishSize = this.generateFishSize(fish)
-      const fishPrice = this.calculateFishPrice(fish, fishSize)
-      const fishStrength = this.calculateFishStrength(fish, fishSize)
-
-      this.currentFish = {
-        key: fish.key,
-        name: fish.name,
-        size: fishSize,
-        price: fishPrice
-      }
-
-      this.currentFishStrength = fishStrength
-      this.isWaitingBite = false
-      this.isFishHooked = true
-      this.message = fish.name + ' ' + fishSize + ' г'
-
-      this.startFishMove()
-      this.startFishEscape()
-    },
-
-    generateFishSize(fish) {
-      const minSize = fish.minSize
-      const maxSize = fish.maxSize
-      const randomSize = Math.floor(Math.random() * (maxSize - minSize + 1)) + minSize
-
-      if (this.currentCastAreaBonus > 0) {
-        return Math.floor(randomSize * (1 + this.currentCastAreaBonus))
-      }
-
-      return randomSize
-    },
-
-    calculateFishPrice(fish, size) {
-      const price = Math.round((size / 100) * fish.price)
-
-      if (price < 1) {
-        return 1
-      }
-
-      return price
-    },
-
-    calculateFishStrength(fish, size) {
-      const sizePart = size / fish.maxSize
-      const gearPower = this.selectedRod.power + this.selectedLine.power + this.selectedReel.power
-      const strength = fish.difficulty + sizePart * 1.5 - gearPower * 0.15
-
-      if (strength < 0.8) {
-        return 0.8
-      }
-
-      return strength
-    },
-
-    isPositionInArea(position) {
-      if (!this.activeArea) {
-        return false
-      }
-
-      const areaStartX = this.activeArea.x
-      const areaEndX = this.activeArea.x + this.activeArea.width
-      const areaStartY = this.activeArea.y
-      const areaEndY = this.activeArea.y + this.activeArea.height
-
-      return position.x >= areaStartX
-        && position.x <= areaEndX
-        && position.y >= areaStartY
-        && position.y <= areaEndY
-    },
-
-    startFishMove() {
-      clearInterval(this.fishInterval)
-
-      this.fishInterval = setInterval(() => {
-        if (!this.isFishHooked) {
-          return
-        }
-
-        if (this.isPulling) {
-          return
-        }
-
-        const centerX = 50
-        const moveX = 1.8 + this.currentFishStrength * 0.6
-        const moveY = 0.9 + this.currentFishStrength * 0.35
-
-        if (this.floatX <= centerX) {
-          this.floatX = this.floatX - moveX
-        } else {
-          this.floatX = this.floatX + moveX
-        }
-
-        this.floatY = this.floatY - moveY
-
-        if (this.floatX < 8) {
-          this.floatX = 8
-        }
-
-        if (this.floatX > 92) {
-          this.floatX = 92
-        }
-
-        if (this.floatY < 52) {
-          this.floatY = 52
-        }
-
-        if (this.floatY > 88) {
-          this.floatY = 88
-        }
-      }, 210)
-    },
-
-    startFishEscape() {
-      clearInterval(this.fishPowerInterval)
-
-      this.fishPowerInterval = setInterval(() => {
-        if (!this.isFishHooked) {
-          return
-        }
-
-        if (!this.isPulling) {
-          this.fishDistance = this.fishDistance + 1.6 + this.currentFishStrength * 0.5 - this.selectedReel.power * 0.15
-        } else {
-          this.fishDistance = this.fishDistance - 0.4
-        }
-
-        if (this.fishDistance < 0) {
-          this.fishDistance = 0
-        }
-
-        if (this.fishDistance >= 100) {
-          this.missFish()
-        }
-      }, 230)
-    },
-
-    handleStartPull() {
-      if (!this.isFishHooked) {
-        return
-      }
-
-      this.isPulling = true
-      this.message = 'Тяни осторожно!'
-
-      clearInterval(this.pullInterval)
-      clearInterval(this.loadInterval)
-
-      this.pullInterval = setInterval(() => {
-        if (!this.isPulling || !this.isFishHooked) {
-          return
-        }
-
-        const centerX = 50
-        const pullX = 1.4 + this.selectedReel.power * 0.35
-        const pullY = 1.5 + this.selectedRod.power * 0.3
-        const pullFish = 1.3 + this.selectedRod.power * 0.25 + this.selectedReel.power * 0.15 - this.currentFishStrength * 0.35
-
-        if (this.floatX < centerX) {
-          this.floatX = this.floatX + pullX
-        } else if (this.floatX > centerX) {
-          this.floatX = this.floatX - pullX
-        }
-
-        this.floatY = this.floatY + pullY
-        this.fishDistance = this.fishDistance - pullFish
-
-        if (this.floatX < 8) {
-          this.floatX = 8
-        }
-
-        if (this.floatX > 92) {
-          this.floatX = 92
-        }
-
-        if (this.floatY > 84) {
-          this.floatY = 84
-        }
-
-        if (this.fishDistance < 0) {
-          this.fishDistance = 0
-        }
-
-        if (this.floatY >= 80 && this.floatX >= 43 && this.floatX <= 57 && this.fishDistance <= 8) {
-          this.catchFish()
-        }
-      }, 180)
-
-      this.loadInterval = setInterval(() => {
-        if (!this.isPulling || !this.isFishHooked) {
-          return
-        }
-
-        const loadStep = 5 + this.currentFishStrength * 1.4 - this.selectedRod.power * 0.6 - this.selectedLine.power * 0.5
-        this.rodLoad = this.rodLoad + loadStep
-
-        if (this.rodLoad >= 85) {
-          this.checkRodBreakChance()
-        }
-
-        if (this.rodLoad >= 100) {
-          this.breakRod()
-        }
-      }, 210)
-    },
-
-    checkRodBreakChance() {
-      const chance = 0.03 + this.currentFishStrength * 0.02 - this.selectedRod.power * 0.005
-
-      if (Math.random() < chance) {
-        this.breakRod()
-      }
-    },
-
-    handleStopPull() {
-      this.isPulling = false
-
-      clearInterval(this.pullInterval)
-      clearInterval(this.loadInterval)
-
-      if (this.isFishHooked) {
-        this.message = 'Рыба тянет поплавок в сторону'
-        this.startRodRelax()
-      }
-    },
-
-    startRodRelax() {
-      clearInterval(this.loadInterval)
-
-      this.loadInterval = setInterval(() => {
-        if (this.isPulling || !this.isFishHooked) {
-          clearInterval(this.loadInterval)
-          return
-        }
-
-        this.rodLoad = this.rodLoad - 9
-
-        if (this.rodLoad <= 0) {
-          this.rodLoad = 0
-          clearInterval(this.loadInterval)
-        }
-      }, 160)
-    },
-
-    catchFish() {
-      const fishLabel = this.currentFish.name + ' ' + this.currentFish.size + ' г'
-      const historyLabel = this.currentFish.name + ' ' + this.currentFish.size + ' г - ' + this.currentLocation.name
-
-      this.lastCatch = fishLabel
-      this.catchHistory.unshift(historyLabel)
-
-      if (this.catchHistory.length > 5) {
-        this.catchHistory.pop()
-      }
-
-      this.inventory.fish.unshift({
-        id: Date.now(),
-        name: this.currentFish.name,
-        size: this.currentFish.size,
-        location: this.currentLocation.name,
-        price: this.currentFish.price
-      })
-
-      this.message = 'Рыба поймана!'
-      this.finishFishing()
-    },
-
-    missFish() {
-      this.message = 'Рыба сорвалась'
-      this.finishFishing()
-    },
-
-    breakRod() {
-      const brokenRod = this.selectedRod
-
-      this.message = 'Удочка сломалась!'
-      this.finishFishing()
-
-      if (!brokenRod) {
-        return
-      }
-
-      const rodIndex = this.inventory.rods.findIndex((rod) => rod === brokenRod)
+      const rodIndex = this.inventory.rods.findIndex((item) => item === this.selectedRod)
 
       if (rodIndex !== -1) {
         this.inventory.rods.splice(rodIndex, 1)
@@ -1080,67 +370,134 @@ export default {
       this.showShopMessage('Текущая удочка сломана полностью')
     },
 
-    finishFishing() {
-      this.clearFishingTimers()
-      this.isFishing = false
-      this.isWaitingBite = false
-      this.isFishHooked = false
-      this.isPulling = false
-      this.rodLoad = 0
-      this.fishDistance = 0
-      this.currentFish = null
-      this.currentFishStrength = 0
-      this.currentCastAreaBonus = 0
-      this.currentBaitKey = ''
+    removeBaitByIndex(index) {
+      if (index < 0 || index >= this.inventory.baits.length) {
+        return
+      }
 
-      setTimeout(() => {
-        if (!this.isFishing && !this.isFishHooked) {
-          this.message = 'Кликни по воде чтобы забросить'
+      const removedItem = this.inventory.baits[index]
+
+      this.inventory.baits.splice(index, 1)
+
+      if (this.selectedBait === removedItem) {
+        this.selectedBait = null
+
+        if (this.inventory.baits.length > 0) {
+          this.selectedBait = this.inventory.baits[0]
         }
-      }, 1500)
-
-      this.chooseActiveArea()
+      }
     },
 
-    resetFishing() {
-      this.clearFishingTimers()
-      this.isFishing = false
-      this.isWaitingBite = false
-      this.isFishHooked = false
-      this.isPulling = false
-      this.floatX = 0
-      this.floatY = 0
-      this.rodLoad = 0
-      this.fishDistance = 0
-      this.currentFish = null
-      this.currentFishStrength = 0
-      this.currentCastAreaBonus = 0
-      this.currentBaitKey = ''
-      this.lastCatch = ''
-      this.message = 'Кликни по воде чтобы забросить'
+    removeGroundBaitByIndex(index) {
+      if (index < 0 || index >= this.inventory.groundBaits.length) {
+        return
+      }
+
+      const removedItem = this.inventory.groundBaits[index]
+
+      this.inventory.groundBaits.splice(index, 1)
+
+      if (this.selectedGroundBait === removedItem) {
+        this.selectedGroundBait = null
+
+        if (this.inventory.groundBaits.length > 0) {
+          this.selectedGroundBait = this.inventory.groundBaits[0]
+        }
+      }
     },
 
-    clearFishingTimers() {
-      clearTimeout(this.biteTimeout)
-      clearInterval(this.fishInterval)
-      clearInterval(this.pullInterval)
-      clearInterval(this.loadInterval)
-      clearInterval(this.fishPowerInterval)
+    handleUseGroundBait(payload) {
+      if (!payload) {
+        return
+      }
+
+      const index = payload.index
+      const item = this.inventory.groundBaits[index]
+
+      if (!item) {
+        return
+      }
+
+      item.usesLeft = (item.usesLeft || 3) - 1
+
+      if (item.usesLeft > 0) {
+        if (this.selectedGroundBait !== item) {
+          this.selectedGroundBait = item
+        }
+        return
+      }
+
+      item.count = item.count - 1
+
+      if (item.count > 0) {
+        item.usesLeft = 3
+
+        if (this.selectedGroundBait !== item) {
+          this.selectedGroundBait = item
+        }
+
+        return
+      }
+
+      const removedItem = item
+
+      this.inventory.groundBaits.splice(index, 1)
+
+      if (this.selectedGroundBait === removedItem) {
+        this.selectedGroundBait = null
+
+        if (this.inventory.groundBaits.length > 0) {
+          this.selectedGroundBait = this.inventory.groundBaits[0]
+        }
+      }
+    },
+
+    removeNetByIndex(index) {
+      if (index < 0 || index >= this.inventory.nets.length) {
+        return
+      }
+
+      const removedItem = this.inventory.nets[index]
+
+      this.inventory.nets.splice(index, 1)
+
+      if (this.selectedNet === removedItem) {
+        this.selectedNet = null
+
+        if (this.inventory.nets.length > 0) {
+          this.selectedNet = this.inventory.nets[0]
+        }
+      }
+    },
+
+    handleNetBroken() {
+      this.showShopMessage('Сачок сломан')
+    },
+
+    removeInventoryItem(payload) {
+      if (!this.inventory[payload.category]) {
+        return
+      }
+
+      this.inventory[payload.category].splice(payload.index, 1)
+    },
+
+    removeFish(index) {
+      this.inventory.fish.splice(index, 1)
+    },
+
+    clearAllFish() {
+      this.inventory.fish = []
     }
   },
   created() {
-    this.selectedLocation = this.locations[0]
-    this.chooseActiveArea()
     this.selectedLine = this.inventory.lines[0]
     this.selectedReel = this.inventory.reels[0]
     this.selectedBait = this.inventory.baits[0]
-  },
-  beforeUnmount() {
-    this.clearFishingTimers()
+    this.selectedGroundBait = this.inventory.groundBaits[0] || null
   }
 }
 </script>
-
 <style scoped lang="scss">
 .index {
   font-family: Arial, sans-serif;
@@ -1213,15 +570,6 @@ export default {
 
   &__panel {
     margin-bottom: 10px;
-  }
-
-  &__area-info {
-    margin-bottom: 10px;
-    padding: 8px;
-    border: 1px solid #000000;
-    background: #eef7ff;
-    text-align: center;
-    font-size: 14px;
   }
 
   &__shop-message {
