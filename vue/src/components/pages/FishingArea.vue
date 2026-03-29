@@ -4,6 +4,8 @@
       @click="(event) => onWaterClick(event)">
       <div class="fishing-area__overlay"></div>
 
+      <slot name="bait-spot"></slot>
+
       <div v-if="activeArea" class="fishing-area__spot" :style="{
         left: activeArea.x + '%',
         top: activeArea.y + '%',
@@ -146,7 +148,7 @@ export default {
     padding: 10px;
     background-size: cover;
     background-position: center;
-    overflow: hidden;
+    overflow: visible;
     cursor: crosshair;
   }
 
